@@ -1,4 +1,6 @@
 pluginname=AddMultiDate
 pluginclassname=AddMultiDate
 origin=data-quest
-version=1.0
+version=1.1
+description=Diese Plugin verinfacht das Anlegen mehrerer Termine auf der Zeiten/Räume Seite, inklusive dem Buchen eines Raumes für alle Termine.
+studipMinVersion=4.5

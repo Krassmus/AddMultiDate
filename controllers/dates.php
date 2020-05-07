@@ -1,27 +1,12 @@
 <?php
 
-/**
- * This file is part of the DateGroupEditPlugin for Stud.IP
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * @author   Moritz Strohm <strohm@data-quest.de>
- * @license  http://www.gnu.org/licenses/gpl-2.0.html GPL version 2
- * @category Plugin
-**/
-
-require_once('app/controllers/plugin_controller.php');
-
 class DatesController extends PluginController
 {
     public function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
 
-        PageLayout::setTitle(_("Termine hinzuf�gen"));
+        PageLayout::setTitle(_("Termine hinzufügen"));
         if (!$GLOBALS['perm']->have_perm('dozent')) {
             throw new AccessDeniedException();
         }
@@ -29,25 +14,38 @@ class DatesController extends PluginController
 
     public function add_action()
     {
+        //Get all available date types:
+        $this->date_types = [];
+        foreach ($GLOBALS['TERMIN_TYP'] as $id => $config_type) {
+            $this->date_types[$id] = $config_type['name'];
+        }
+
         if (Request::isPost()) {
+            $date_type = Request::get('date_type');
+            if (!in_array($date_type, array_keys($this->date_types))) {
+                PageLayout::postError(
+                    _('Es wurde ein ungültiger Termintyp ausgewählt!')
+                );
+                return;
+            }
             foreach (Request::getArray("dates") as $date) {
                 if ($date) {
                     $starttime = strtotime($date);
                     $endtime = $starttime + Request::int("dauer") * 60;
                     $coursedate = new CourseDate();
-                    $coursedate['range_id'] = $_SESSION['SessionSeminar'];
+                    $coursedate['range_id'] = Context::get()->id;
                     $coursedate['date'] = $starttime;
                     $coursedate['end_time'] = $endtime;
-                    $coursedate['date_typ'] = 1;
+                    $coursedate['date_typ'] = $date_type;
                     $coursedate['autor_id'] = $GLOBALS['user']->id;
                     if (Request::int("freetext")) {
                         $coursedate['raum'] = Request::get("freetext_location");
                     }
                     $coursedate->store();
                     if (!Request::int("freetext")) {
-                        $assignment = new ResourceAssignment();
+                        $assignment = new ResourceBooking();
                         $assignment['resource_id'] = Request::option("resource_id");
-                        $assignment['assign_user_id'] = $coursedate->getId();
+                        $assignment['range_id'] = $coursedate->getId();
                         $assignment['begin'] = $starttime;
                         $assignment['end'] = $endtime;
                         $assignment['repeat_end'] = $endtime;
@@ -64,10 +62,10 @@ class DatesController extends PluginController
     public function check_action()
     {
         $statement = DBManager::get()->prepare("
-            SELECT resources_objects.name, resources_assign.begin, resources_assign.end
-            FROM resources_assign
-                INNER JOIN resources_objects ON (resources_assign.resource_id = resources_objects.resource_id)
-            WHERE resources_assign.resource_id = :resource_id
+            SELECT resources_objects.name, resource_bookings.begin, resource_bookings.end
+            FROM resource_bookings
+                INNER JOIN resources ON (resource_bookings.resource_id = resources.id)
+            WHERE resource_bookings.resource_id = :resource_id
                 AND (
                     (begin >= :start AND begin < :end)
                     OR (end > :start AND end <= :end)

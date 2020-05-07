@@ -14,7 +14,7 @@ class AddMultiDate extends StudIPPlugin implements SystemPlugin
                 //compatible with Stud.IP 4.0!
                 if ((strpos($_SERVER['REQUEST_URI'], 'dispatch.php/course/timesrooms')
                         or strpos($_SERVER['REQUEST_URI'], 'raumzeit.php'))
-                    and ($GLOBALS['SessSemName']['class'] == 'sem')) {
+                    && (Context::isCourse())) {
                     NotificationCenter::addObserver(
                         $this,
                         'addActionToSidebar',
@@ -33,19 +33,12 @@ class AddMultiDate extends StudIPPlugin implements SystemPlugin
 
         $link_added = false;
 
-        if (version_compare($GLOBALS['SOFTWARE_VERSION'], '3.4', '>=')) {
-            $link_data = [
-                _('Mehrere Termine hinzufügen'),
-                PluginEngine::getURL($this, [], 'dates/add'),
-                Icon::create('add', 'clickable'), ['data-dialog' => '1']
-            ];
-        } else {
-            $link_data = [
-                _('Mehrere Termine hinzufügen'),
-                PluginEngine::getURL($this, [], 'dates/add'),
-                Assets::image_path('icons/blue/add'),['data-dialog' => '1']
-            ];
-        }
+        $link_data = [
+            _('Mehrere Termine hinzufÃ¼gen'),
+            PluginEngine::getURL($this, [], 'dates/add'),
+            Icon::create('add', "clickable"),
+            ['data-dialog' => '1']
+        ];
 
         foreach ($widgets as $widget) {
             if ($widget instanceof ActionsWidget) {

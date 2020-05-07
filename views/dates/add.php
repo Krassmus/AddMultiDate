@@ -1,5 +1,5 @@
 <form action="<?= PluginEngine::getLink($plugin, array(), "dates/add") ?>"
-      class="default studip_form"
+      class="default"
       method="post">
     <div id="datetime_error" style="display: none;">
         <?= MessageBox::error("hallo") ?>
@@ -18,13 +18,29 @@
 
         <label id="add_raumbuchung">
             <?= _("Raum buchen") ?>
-            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT resource_id, name FROM resources_objects WHERE name LIKE :input OR description LIKE :input "))->render() ?>
+            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT id, name FROM resources WHERE name LIKE :input OR description LIKE :input "))->render() ?>
         </label>
 
         <label id="add_freetext_location">
             <?= _("Dauer in Minuten") ?>
             <input type="text" name="dauer" value="60">
         </label>
+        <? if ($date_types): ?>
+            <label>
+                <?= _('Termintyp') ?>
+                <select name="date_type">
+                    <? $first_id = array_keys($date_types)[0]; ?>
+                    <? foreach ($date_types as $id => $date_type): ?>
+                        <option value="<?= htmlReady($id)?>"
+                                <?= $first_id == $id
+                                  ? 'selected="selected"'
+                                  : '' ?>>
+                            <?= htmlReady($date_type) ?>
+                        </option>
+                    <? endforeach ?>
+                </select>
+            </label>
+        <? endif ?>
 
         <ul class="clean datetime">
             <li>
@@ -32,10 +48,10 @@
                     <input type="text" name="dates[]" placeholder="<?= _("Datum und Zeit") ?>">
                 </label>
                 <a class="trash" href="#" onClick="jQuery(this).closest('li').fadeOut(function () { jQuery(this).remove(); }); return false;">
-                    <?= Assets::img("icons/20/blue/trash", array('class' => "text-bottom")) ?>
+                    <?= Icon::create("trash", "clickable")->asImg(20, array('class' => "text-bottom")) ?>
                 </a>
                 <a class="add" href="#" onClick="jQuery(this).closest('li').clone().appendTo('ul.clean.datetime').find('input').last().removeClass('hasDatepicker').removeAttr('id').datetimepicker(); return false;">
-                    <?= Assets::img("icons/20/blue/add", array('class' => "text-bottom")) ?>
+                    <?= Icon::create("add", "clickable")->asImg(20, array('class' => "text-bottom")) ?>
                 </a>
             </li>
         </ul>
