@@ -62,10 +62,10 @@ class DatesController extends PluginController
     public function check_action()
     {
         $statement = DBManager::get()->prepare("
-            SELECT resources_objects.name, resource_bookings.begin, resource_bookings.end
+            SELECT resources.name, resource_bookings.begin, resource_bookings.end
             FROM resource_bookings
                 INNER JOIN resources ON (resource_bookings.resource_id = resources.id)
-                INNER JOIN resouces_categories ON (resources.category_id = resouces_categories.id)
+                INNER JOIN resource_categories ON (resources.category_id = resource_categories.id)
             WHERE resource_bookings.resource_id = :resource_id
                 AND (
                     (begin >= :start AND begin < :end)

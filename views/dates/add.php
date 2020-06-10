@@ -18,7 +18,7 @@
 
         <label id="add_raumbuchung">
             <?= _("Raum buchen") ?>
-            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT id, name FROM resources WHERE name LIKE :input OR description LIKE :input "))->render() ?>
+            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT resources.id, resources.name FROM resources INNER JOIN resource_categories ON (resource_categories.id = resources.category_id) WHERE resources.name LIKE :input OR resources.description LIKE :input AND resource_categories.class_name = 'Room' "))->render() ?>
         </label>
 
         <label id="add_freetext_location">
@@ -60,7 +60,7 @@
                 jQuery("ul.clean.datetime input").datetimepicker();
                 jQuery(document).on("change", "ul.clean.datetime input, #add_raumbuchung input", function () {
                     //Abfrage, ob die Kombination aus Terminen und Raumbuchung valide ist.
-                    var resource_id = jQuery("#resource_id_1_realvalue").val();
+                    var resource_id = jQuery("input[name=resource_id_parameter]").val();
                     var dates = jQuery("ul.clean.datetime input").map(function() {
                         return $(this).val();
                     }).toArray().filter(function (e) { return e; });
@@ -70,7 +70,7 @@
                         jQuery.ajax({
                             "url": STUDIP.URLHelper.getURL("plugins.php/addmultidate/dates/check"),
                             "data": {
-                                "resource_id": jQuery("#resource_id_1_realvalue").val(),
+                                "resource_id": resource_id,
                                 "dates": dates,
                                 "dauer": jQuery().val()
                             },
