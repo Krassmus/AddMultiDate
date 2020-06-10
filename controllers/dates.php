@@ -65,12 +65,14 @@ class DatesController extends PluginController
             SELECT resources_objects.name, resource_bookings.begin, resource_bookings.end
             FROM resource_bookings
                 INNER JOIN resources ON (resource_bookings.resource_id = resources.id)
+                INNER JOIN resouces_categories ON (resources.category_id = resouces_categories.id)
             WHERE resource_bookings.resource_id = :resource_id
                 AND (
                     (begin >= :start AND begin < :end)
                     OR (end > :start AND end <= :end)
                     OR (end >= :end AND begin <= :start)
                 )
+                AND resource_categories.class_name = 'Room'
         ");
         $conflicts = array();
         foreach (Request::getArray("dates") as $date) {
