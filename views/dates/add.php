@@ -18,7 +18,7 @@
 
         <label id="add_raumbuchung">
             <?= _("Raum buchen") ?>
-            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT resources.id, resources.name FROM resources INNER JOIN resource_categories ON (resource_categories.id = resources.category_id) WHERE resources.name LIKE :input OR resources.description LIKE :input AND resource_categories.class_name = 'Room' "))->render() ?>
+            <?= QuickSearch::get("resource_id", new SQLSearch("SELECT resources.id, resources.name FROM resources INNER JOIN resource_categories ON (resource_categories.id = resources.category_id) WHERE (resources.name LIKE :input OR resources.description LIKE :input) AND resource_categories.class_name = 'Room' "))->render() ?>
         </label>
 
         <label id="add_freetext_location">
